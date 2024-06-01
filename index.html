@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dibujo</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="lienzo"></canvas>
+
+    <script>
+        var hoja = document.getElementById("lienzo");
+        hoja.width = window.innerWidth;
+        hoja.height = window.innerHeight;
+        var dibujo = hoja.getContext("2d");
+
+        var nave = {
+            x: hoja.width / 2,
+            y: hoja.height / 2,
+            width: 40,
+            height: 20,
+            color: "#FF0000",
+            speed: 5
+        };
+
+        var estrellas = [];
+        for (var i = 0; i < 100; i++) {
+            estrellas.push({
+                x: Math.random() * hoja.width,
+                y: Math.random() * hoja.height,
+                radio: Math.random() * 2
+            });
+        }
+
+        var planetas = [
+            { x: hoja.width * 0.3, y: hoja.height * 0.5, radio: 70, color: "#4B8B3B" },
+            { x: hoja.width * 0.7, y: hoja.height * 0.3, radio: 40, color: "#DAA520" }
+        ];
+
+        var meteorito = {
+            x: hoja.width * 1.2,
+            y: hoja.height * 0.7,
+            width: 60,
+            height: 30,
+            color: "#A9A9A9"
+        };
+
+        function dibujarNave() {
+            dibujo.fillStyle = nave.color;
+            dibujo.beginPath();
+            dibujo.moveTo(nave.x, nave.y);
+            dibujo.lineTo(nave.x - nave.width / 2, nave.y + nave.height);
+            dibujo.lineTo(nave.x + nave.width / 2, nave.y + nave.height);
+            dibujo.closePath();
+            dibujo.fill();
+        }
+
+        function dibujarEscena() {
+            dibujo.fillStyle = "#000000";
+            dibujo.fillRect(0, 0, hoja.width, hoja.height);
+
+            for (var i = 0; i < estrellas.length; i++) {
+                var estrella = estrellas[i];
+                dibujarEstrella(estrella.x, estrella.y, estrella.radio, "#FFFFFF");
+            }
+
+            for (var i = 0; i < planetas.length; i++) {
+                var planeta = planetas[i];
+                dibujo.fillStyle = planeta.color;
+                dibujo.beginPath();
+                dibujo.arc(planeta.x, planeta.y, planeta.radio, 0, Math.PI * 2, true);
+                dibujo.closePath();
+                dibujo.fill();
+            }
+
+            // Dibujar meteorito
+            dibujo.fillStyle = meteorito.color;
+            dibujo.beginPath();
+            dibujo.ellipse(meteorito.x, meteorito.y, meteorito.width, meteorito.height, 0, 0, Math.PI * 2);
+            dibujo.closePath();
+            dibujo.fill();
+        }
+
+        function dibujarEstrella(x, y, radio, color) {
+            dibujo.fillStyle = color;
+            dibujo.beginPath();
+            dibujo.arc(x, y, radio, 0, Math.PI * 2, true);
+            dibujo.closePath();
+            dibujo.fill();
+        }
+
+        function moverNave(event) {
+            switch (event.key) {
+                case "ArrowUp":
+                    nave.y -= nave.speed;
+                    break;
+                case "ArrowDown":
+                    nave.y += nave.speed;
+                    break;
+                case "ArrowLeft":
+                    nave.x -= nave.speed;
+                    break;
+                case "ArrowRight":
+                    nave.x += nave.speed;
+                    break;
+            }
+
+            // Si la nave se mueve más allá del borde derecho del canvas
+            if (nave.x > hoja.width) {
+                nave.x = 0;
+                generarNuevoFondo();
+            } else if (nave.x < 0) {
+                nave.x = hoja.width;
+            }
+            if (nave.y > hoja.height) {
+                nave.y = 0;
+            } else if (nave.y < 0) {
+                nave.y = hoja.height;
+            }
+
+            actualizar();
+        }
+
+        function generarNuevoFondo() {
+            // Generar nuevas estrellas
+            estrellas = [];
+            for (var i = 0; i < 100; i++) {
+                estrellas.push({
+                    x: Math.random() * hoja.width,
+                    y: Math.random() * hoja.height,
+                    radio: Math.random() * 2
+                });
+            }
+
+            // Generar nuevos planetas
+            planetas = [
+                { x: Math.random() * hoja.width, y: Math.random() * hoja.height, radio: Math.random() * 80 + 20, color: "#4B8B3B" },
+                { x: Math.random() * hoja.width, y: Math.random() * hoja.height, radio: Math.random() * 50 + 10, color: "#DAA520" },
+                { x: Math.random() * hoja.width, y: Math.random() * hoja.height, radio: Math.random() * 60 + 20, color: "#1E90FF" }
+            ];
+
+            // Generar nuevo meteorito
+            meteorito = {
+                x: Math.random() * hoja.width,
+                y: Math.random() * hoja.height,
+                width: Math.random() * 80 + 20,
+                height: Math.random() * 40 + 10,
+                color: "#A9A9A9"
+            };
+        }
+
+        function actualizar() {
+            dibujarEscena();
+            dibujarNave();
+        }
+
+        window.addEventListener("keydown", moverNave);
+        actualizar();
+    </script>
+</body>
+</html>
+
